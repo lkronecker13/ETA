@@ -1,0 +1,1109 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import seaborn as sns\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "# File with helper methods\n",
+    "import tools\n",
+    "\n",
+    "%matplotlib inline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 65,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_trips_stops = pd.read_csv('data/2_processed/df_trips_stops_ready.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 66,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    " df_trips_stops.drop_duplicates(['rt_trip_id', 'rt_stop_id', 'departure'], inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 67,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(587632, 8)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>rt_trip_id</th>\n",
+       "      <th>rt_stop_id</th>\n",
+       "      <th>stop_offset</th>\n",
+       "      <th>departure</th>\n",
+       "      <th>lat</th>\n",
+       "      <th>lng</th>\n",
+       "      <th>distance_prev</th>\n",
+       "      <th>departure_date</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>201955859</td>\n",
+       "      <td>51843</td>\n",
+       "      <td>30</td>\n",
+       "      <td>1568606460</td>\n",
+       "      <td>45.541968</td>\n",
+       "      <td>-73.590304</td>\n",
+       "      <td>162.0</td>\n",
+       "      <td>2019-09-16 04:01:00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>201955859</td>\n",
+       "      <td>61653</td>\n",
+       "      <td>37</td>\n",
+       "      <td>1568606820</td>\n",
+       "      <td>45.531186</td>\n",
+       "      <td>-73.597507</td>\n",
+       "      <td>289.0</td>\n",
+       "      <td>2019-09-16 04:07:00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>201955861</td>\n",
+       "      <td>51755</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1568607347</td>\n",
+       "      <td>45.536114</td>\n",
+       "      <td>-73.593775</td>\n",
+       "      <td>181.0</td>\n",
+       "      <td>2019-09-16 04:15:47</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>201955861</td>\n",
+       "      <td>61579</td>\n",
+       "      <td>4</td>\n",
+       "      <td>1568607385</td>\n",
+       "      <td>45.537211</td>\n",
+       "      <td>-73.592786</td>\n",
+       "      <td>144.0</td>\n",
+       "      <td>2019-09-16 04:16:25</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>201955862</td>\n",
+       "      <td>53151</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1568609160</td>\n",
+       "      <td>45.582726</td>\n",
+       "      <td>-73.542559</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>2019-09-16 04:46:00</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   rt_trip_id  rt_stop_id  stop_offset   departure        lat        lng  \\\n",
+       "0   201955859       51843           30  1568606460  45.541968 -73.590304   \n",
+       "1   201955859       61653           37  1568606820  45.531186 -73.597507   \n",
+       "2   201955861       51755            3  1568607347  45.536114 -73.593775   \n",
+       "3   201955861       61579            4  1568607385  45.537211 -73.592786   \n",
+       "4   201955862       53151            0  1568609160  45.582726 -73.542559   \n",
+       "\n",
+       "   distance_prev       departure_date  \n",
+       "0          162.0  2019-09-16 04:01:00  \n",
+       "1          289.0  2019-09-16 04:07:00  \n",
+       "2          181.0  2019-09-16 04:15:47  \n",
+       "3          144.0  2019-09-16 04:16:25  \n",
+       "4            0.0  2019-09-16 04:46:00  "
+      ]
+     },
+     "execution_count": 67,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "print(df_trips_stops.shape)\n",
+    "df_trips_stops.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Frame before dropping duplicates : (600323, 7)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 68,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "Int64Index: 587632 entries, 0 to 589447\n",
+      "Data columns (total 8 columns):\n",
+      "rt_trip_id        587632 non-null int64\n",
+      "rt_stop_id        587632 non-null int64\n",
+      "stop_offset       587632 non-null int64\n",
+      "departure         587632 non-null int64\n",
+      "lat               587632 non-null float64\n",
+      "lng               587632 non-null float64\n",
+      "distance_prev     587632 non-null float64\n",
+      "departure_date    587632 non-null object\n",
+      "dtypes: float64(3), int64(4), object(1)\n",
+      "memory usage: 40.3+ MB\n"
+     ]
+    }
+   ],
+   "source": [
+    "df_trips_stops.info()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### By stop"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "8756"
+      ]
+     },
+     "execution_count": 41,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    " df_grouped_by_stop = df_trips_stops.groupby('rt_stop_id')\n",
+    "len(df_grouped_by_stop.groups.keys())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "count    8756.000000\n",
+       "mean       67.322407\n",
+       "std        46.510097\n",
+       "min         1.000000\n",
+       "25%        37.000000\n",
+       "50%        49.000000\n",
+       "75%        94.000000\n",
+       "max       360.000000\n",
+       "dtype: float64"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "type(df_grouped_by_stop.size())\n",
+    "df_grouped_by_stop.size().sort_values()\n",
+    "df_grouped_by_stop.size().describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# df_grouped_by_stop.size()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "1\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "34"
+      ]
+     },
+     "execution_count": 47,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Calculate how many stops belong only to one route\n",
+    "list_routes = list(df_grouped_by_stop.size().values)\n",
+    "list_route_indexes = list(df_grouped_by_stop.size().index)\n",
+    "\n",
+    "print(min(df_grouped_by_stop.size().values))\n",
+    "\n",
+    "list_routes.count(min(df_grouped_by_stop.size().values))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A maximum of 365 different routes pass by a single stop. Theres 18 stops that form part of only one route. In average 68.56 routes per stop. We need to see if these values are true or if we have more than different instances of the same trip under specific stops. Let's study the stop that has 365 rows under it's group."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "53287"
+      ]
+     },
+     "execution_count": 48,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "list_route_indexes[list_routes.index(360)]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The stop which has 365 different records is : 53287. Let's extract its group to take a closer look."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 64,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(1, 7)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>rt_trip_id</th>\n",
+       "      <th>rt_stop_id</th>\n",
+       "      <th>stop_offset</th>\n",
+       "      <th>departure</th>\n",
+       "      <th>lat</th>\n",
+       "      <th>lng</th>\n",
+       "      <th>distance_prev</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>225987</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>30</td>\n",
+       "      <td>13</td>\n",
+       "      <td>1568627340</td>\n",
+       "      <td>45.511032</td>\n",
+       "      <td>-73.564898</td>\n",
+       "      <td>424.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                  rt_trip_id  rt_stop_id  stop_offset   departure        lat  \\\n",
+       "225987  19S-GLOBAUX-01-S_1_2          30           13  1568627340  45.511032   \n",
+       "\n",
+       "              lng  distance_prev  \n",
+       "225987 -73.564898          424.0  "
+      ]
+     },
+     "execution_count": 64,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_per_stop = df_grouped_by_stop.get_group(30)\n",
+    "print(df_per_stop.shape)\n",
+    "df_per_stop.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "360"
+      ]
+     },
+     "execution_count": 50,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_per_stop['rt_trip_id'].nunique()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "we have only 360 unique stop ids. Let's extract look at the duplicated ones to understand its nature."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# x = df_per_stop['rt_trip_id']\n",
+    "y = list(set(df_per_stop['rt_trip_id']))\n",
+    "\n",
+    "duplicates = seen = set()\n",
+    "uniq = [x for x in df_per_stop['rt_trip_id'] if x not in seen and not seen.add(x)] "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def find_duplicates(duped_list):\n",
+    "    seen = {}\n",
+    "    dupes = []\n",
+    "\n",
+    "    for x in duped_list:\n",
+    "        if x not in seen:\n",
+    "            seen[x] = 1\n",
+    "        else:\n",
+    "            if seen[x] == 1:\n",
+    "                dupes.append(x)\n",
+    "            seen[x] += 1\n",
+    "    return dupes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "duplicates = find_duplicates(df_per_stop['rt_trip_id'].values)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[]"
+      ]
+     },
+     "execution_count": 54,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "duplicates"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for dup_id in duplicates:\n",
+    "    print('Checking trip id: ' + str(dup_id))\n",
+    "    print('NUmber of duplicated ids: ' + str(list(df_per_stop['rt_trip_id'].values).count(dup_id)))\n",
+    "    duped_ids = df_per_stop.loc[df_per_stop['rt_trip_id'] == dup_id]\n",
+    "    print(duped_ids)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "duplicateRowsDF = df_per_stop[df_per_stop.duplicated(['rt_trip_id'], keep='first')]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(0, 7)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>rt_trip_id</th>\n",
+       "      <th>rt_stop_id</th>\n",
+       "      <th>stop_offset</th>\n",
+       "      <th>departure</th>\n",
+       "      <th>lat</th>\n",
+       "      <th>lng</th>\n",
+       "      <th>distance_prev</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "Empty DataFrame\n",
+       "Columns: [rt_trip_id, rt_stop_id, stop_offset, departure, lat, lng, distance_prev]\n",
+       "Index: []"
+      ]
+     },
+     "execution_count": 57,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "print(duplicateRowsDF.shape)\n",
+    "duplicateRowsDF.head()\n",
+    "# ['203580218', '203579651', '203582040', '203579798', '203582102']"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Looks like we have 5 different trips for this stop that have duplicated columns. This means that we could have ingested the data twice. We should eliminate all these duplicates before proceding.\n",
+    "\n",
+    "Let's see if we can do so directly."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "df_trip_stop_dupes = df_trips_stops[df_trips_stops.duplicated(['rt_trip_id', 'rt_stop_id', 'departure'])] "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(0, 7)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>rt_trip_id</th>\n",
+       "      <th>rt_stop_id</th>\n",
+       "      <th>stop_offset</th>\n",
+       "      <th>departure</th>\n",
+       "      <th>lat</th>\n",
+       "      <th>lng</th>\n",
+       "      <th>distance_prev</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "Empty DataFrame\n",
+       "Columns: [rt_trip_id, rt_stop_id, stop_offset, departure, lat, lng, distance_prev]\n",
+       "Index: []"
+      ]
+     },
+     "execution_count": 59,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "print(df_trip_stop_dupes.shape)\n",
+    "df_trip_stop_dupes.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## By both trip and stop"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 60,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    " df_grouped_by_stop_and_trip = df_trips_stops.groupby(['rt_stop_id', 'rt_trip_id'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "rt_stop_id  rt_trip_id                    \n",
+       "3           19S-GLOBAUX-01-S_2_0_205238755    1\n",
+       "8           19S-GLOBAUX-01-S_2_0              1\n",
+       "9           19S-GLOBAUX-01-S_2_0              1\n",
+       "10          19S-GLOBAUX-01-S_2_0              1\n",
+       "14          19S-GLOBAUX-01-S_2_0              1\n",
+       "            19S-GLOBAUX-01-S_2_0_205238755    1\n",
+       "            19S-GLOBAUX-01-S_2_1              1\n",
+       "17          19S-GLOBAUX-01-S_2_1              1\n",
+       "26          19S-GLOBAUX-01-S_1_2              1\n",
+       "30          19S-GLOBAUX-01-S_1_2              1\n",
+       "31          19S-GLOBAUX-01-S_1_2              1\n",
+       "32          19S-GLOBAUX-01-S_1_2              1\n",
+       "33          19S-GLOBAUX-01-S_1_2              1\n",
+       "36          19S-GLOBAUX-01-S_1_2              1\n",
+       "            19S-GLOBAUX-01-S_2_0              1\n",
+       "            19S-GLOBAUX-01-S_2_0_205238755    1\n",
+       "39          19S-GLOBAUX-01-S_1_2              1\n",
+       "41          19S-GLOBAUX-01-S_1_2              1\n",
+       "46          19S-GLOBAUX-01-S_2_0_205238755    1\n",
+       "53          19S-GLOBAUX-01-S_2_0              1\n",
+       "68          19S-GLOBAUX-01-S_2_1              1\n",
+       "50101       201955932                         1\n",
+       "            201956072                         1\n",
+       "            201956123                         1\n",
+       "            204063388                         1\n",
+       "            204063391                         1\n",
+       "            204063394                         1\n",
+       "            204063397                         1\n",
+       "            204063400                         1\n",
+       "            204063403                         1\n",
+       "                                             ..\n",
+       "61815       205385012                         1\n",
+       "            205385015                         1\n",
+       "            205385018                         1\n",
+       "            205385021                         1\n",
+       "            205385026                         1\n",
+       "            205385038                         1\n",
+       "            205385041                         1\n",
+       "            205385044                         1\n",
+       "            205385047                         1\n",
+       "            205385644                         1\n",
+       "            205387007                         1\n",
+       "            205387447                         1\n",
+       "            205387448                         1\n",
+       "            205387452                         1\n",
+       "            205387459                         1\n",
+       "61816       205384888                         1\n",
+       "            205397249                         1\n",
+       "            205397251                         1\n",
+       "            205398457                         1\n",
+       "            205383291                         1\n",
+       "            205384461                         1\n",
+       "            205384834                         1\n",
+       "            205384881                         1\n",
+       "            205384935                         1\n",
+       "9999111     19S-GLOBAUX-01-S_1_2              1\n",
+       "9999112     19S-GLOBAUX-01-S_2_0              1\n",
+       "            19S-GLOBAUX-01-S_2_0_205238755    1\n",
+       "            19S-GLOBAUX-01-S_2_1              1\n",
+       "9999114     19S-GLOBAUX-01-S_4_1              1\n",
+       "9999495     19S-GLOBAUX-01-S_5_2              1\n",
+       "Length: 589475, dtype: int64"
+      ]
+     },
+     "execution_count": 61,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# df_grouped_by_stop_and_trip.groups.keys()\n",
+    "df_grouped_by_stop_and_trip.size()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(14, 7)"
+      ]
+     },
+     "execution_count": 28,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_grouped_by_stop.get_group(41).shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>rt_trip_id</th>\n",
+       "      <th>rt_stop_id</th>\n",
+       "      <th>stop_offset</th>\n",
+       "      <th>departure</th>\n",
+       "      <th>lat</th>\n",
+       "      <th>lng</th>\n",
+       "      <th>distance_prev</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>225981</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>281114</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>308037</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>308560</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>318122</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>382517</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>401267</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>436109</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>436118</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>509502</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>513230</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>530409</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>563557</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>579971</th>\n",
+       "      <td>19S-GLOBAUX-01-S_1_2</td>\n",
+       "      <td>41</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1568626380</td>\n",
+       "      <td>45.45701</td>\n",
+       "      <td>-73.581688</td>\n",
+       "      <td>1203.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                  rt_trip_id  rt_stop_id  stop_offset   departure       lat  \\\n",
+       "225981  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "281114  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "308037  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "308560  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "318122  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "382517  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "401267  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "436109  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "436118  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "509502  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "513230  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "530409  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "563557  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "579971  19S-GLOBAUX-01-S_1_2          41            2  1568626380  45.45701   \n",
+       "\n",
+       "              lng  distance_prev  \n",
+       "225981 -73.581688         1203.0  \n",
+       "281114 -73.581688         1203.0  \n",
+       "308037 -73.581688         1203.0  \n",
+       "308560 -73.581688         1203.0  \n",
+       "318122 -73.581688         1203.0  \n",
+       "382517 -73.581688         1203.0  \n",
+       "401267 -73.581688         1203.0  \n",
+       "436109 -73.581688         1203.0  \n",
+       "436118 -73.581688         1203.0  \n",
+       "509502 -73.581688         1203.0  \n",
+       "513230 -73.581688         1203.0  \n",
+       "530409 -73.581688         1203.0  \n",
+       "563557 -73.581688         1203.0  \n",
+       "579971 -73.581688         1203.0  "
+      ]
+     },
+     "execution_count": 29,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_grouped_by_stop.get_group(41)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "we have so many duplicated rows. If two different fows have exactly the same trip and stop id and also departure date that means that those are dupliated records. Let's delete them and check how things behave."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "AttributeError",
+     "evalue": "Cannot access callable attribute 'drop_duplicates' of 'DataFrameGroupBy' objects, try using the 'apply' method",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mAttributeError\u001b[0m                            Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-36-2f8f6f3b3f5d>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mdf_grouped_by_stop\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdrop_duplicates\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'rt_trip_id'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m'rt_stop_id'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m'departure'\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0minplace\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;32m/Users/lkronecker/anaconda/envs/transit_env/lib/python3.6/site-packages/pandas/core/groupby.py\u001b[0m in \u001b[0;36m__getattr__\u001b[0;34m(self, attr)\u001b[0m\n\u001b[1;32m    546\u001b[0m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mattr\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    547\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mhasattr\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mobj\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mattr\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 548\u001b[0;31m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_make_wrapper\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mattr\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    549\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    550\u001b[0m         raise AttributeError(\"%r object has no attribute %r\" %\n",
+      "\u001b[0;32m/Users/lkronecker/anaconda/envs/transit_env/lib/python3.6/site-packages/pandas/core/groupby.py\u001b[0m in \u001b[0;36m_make_wrapper\u001b[0;34m(self, name)\u001b[0m\n\u001b[1;32m    560\u001b[0m                    \"using the 'apply' method\".format(kind, name,\n\u001b[1;32m    561\u001b[0m                                                      type(self).__name__))\n\u001b[0;32m--> 562\u001b[0;31m             \u001b[0;32mraise\u001b[0m \u001b[0mAttributeError\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mmsg\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    563\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    564\u001b[0m         \u001b[0;31m# need to setup the selection\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mAttributeError\u001b[0m: Cannot access callable attribute 'drop_duplicates' of 'DataFrameGroupBy' objects, try using the 'apply' method"
+     ]
+    }
+   ],
+   "source": [
+    " df_grouped_by_stop.drop_duplicates(['rt_trip_id', 'rt_stop_id', 'departure'], inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
